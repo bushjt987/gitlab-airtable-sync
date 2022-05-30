@@ -8,7 +8,7 @@ from gitlab.v4.objects import ProjectIssue
 from pyairtable import Table
 
 
-logger = logging.getLogger(__name__)
+logging.getLogger().setLevel(logging.INFO)
 
 
 class ConfigurationError(Exception):
@@ -63,6 +63,9 @@ except ConfigurationError as e:
 
 def get_airtable_records() -> Dict:
     table = Table(airtable_api_key, airtable_base_id, airtable_table_id)
+
+    logging.info('Pulling all existing records from Airtable table.')
+
     records = table.all()
     records_map = {}
     for record in records:
@@ -70,11 +73,16 @@ def get_airtable_records() -> Dict:
         if key:
             records_map[key] = record
 
+    logging.info('Successfully pulled Airtable records.')
+
     return records_map
 
 
 def get_gitlab_tickets() -> Dict:
     gl = gitlab.Gitlab(private_token=gitlab_private_token)
+
+    logging.info('Pulling GitLab projects.')
+
     projects = {}
     for project_config in gitlab_projects:
         import_after = project_config.get('import_after')
@@ -84,16 +92,26 @@ def get_gitlab_tickets() -> Dict:
             'import_after': import_after
         }
 
+    logging.info('Successfully pulled GitLab projects.')
+
+    logging.info('Pulling GitLab tickets from projects.')
+
     issues_map = {}
     for project_id, project_data in projects.items():
-        # issues = project.issues.list(all=True)
         project = project_data['project']
+
+        logging.info(f'Pulling tickets from {project.name}.')
+
         import_after = project_data['import_after'] or 0
         issues = project.issues.list(all=True)
         issues_map[project.id] = {}
         issues_map[project.id].update(
             {getattr(issue, gitlab_primary_key): issue for issue in issues if issue.iid > import_after}
         )
+
+        logging.info(f'Successfully pulled tickets from {project.name}.')
+
+    logging.info('Successfully pulled tickets from GitLab projects.')
 
     return issues_map
 
@@ -117,6 +135,8 @@ def sync():
     airtable_records_map = get_airtable_records()
     gitlab_tickets_by_project = get_gitlab_tickets()
 
+    logging.info('Collecting missing GitLab tickets from Airtable.')
+
     airtable_records_to_create = []
     for tickets in gitlab_tickets_by_project.values():
         for ticket in tickets.values():
@@ -124,7 +144,15 @@ def sync():
             if not airtable_records_map.get(getattr(ticket, gitlab_primary_key)):
                 airtable_records_to_create.append(parse_ticket_to_record(ticket))
 
-    create_airtable_records(airtable_records_to_create)
+    if len(airtable_records_to_create) > 0:
+        logging.info(f'{len(airtable_records_to_create)} Airtable records will be created.')
+
+        create_airtable_records(airtable_records_to_create)
+
+        logging.info(f'{len(airtable_records_to_create)} Airtable records were successfully created.')
+
+    else:
+        logging.info('No new Airtable records to create.')
 
 
 if __name__ == '__main__':
