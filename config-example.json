@@ -1,0 +1,34 @@
+{
+  "airtable_credentials": {
+    "api_key": "keyXXXXXXXXXX",
+    "base_id": "appsXXXXXXXXX",
+    "table_id": "tblXXXXXXXXX"
+  },
+  "gitlab_credentials": {
+    "private_token": "glpat-XXXXXXXXXXX"
+  },
+  "airtable_field_mapping": {
+    "title": "Title",
+    "ticket_number": "Ticket #",
+    "url": "Ticket URL",
+    "assignees": "Assignee",
+    "labels": "Labels",
+    "weight": null,
+    "milestone": null
+  },
+  "gitlab_projects": [
+    {
+      "name": "Backend",
+      "id": "12345678",
+      "import_after": 50
+    },
+    {
+      "name": "Frontend",
+      "id": "87654321",
+      "import_after": 50
+    }
+  ],
+  "options": {
+    "gitlab_primary_key": "url"
+  }
+}
