@@ -1,0 +1,28 @@
+{
+  "name": "gitlab-airtable-sync",
+  "description": "Sync GitLab tickets to Airtable.",
+  "keywords": [
+    "productivity",
+    "python",
+    "gitlab",
+    "airtable"
+  ],
+  "website": null,
+  "repository": "https://github.com/bushjt987/gitlab-airtable-sync",
+  "logo": null,
+  "success_url": "/welcome",
+  "env": {},
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "standard-1x"
+    }
+  },
+  "image": "heroku/python",
+  "addons": [],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
