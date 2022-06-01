@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 import gitlab
 from typing import Dict
@@ -15,8 +16,13 @@ class ConfigurationError(Exception):
     pass
 
 
-with open('config.json') as f:
-    config = json.load(f)
+# attempt to load config from Heroku env var or fallback to local config.json file
+heroku_config = os.environ['CONFIG_JSON']
+if heroku_config:
+    config = json.loads(heroku_config)
+else:
+    with open('config.json') as f:
+        config = json.load(f)
 
 airtable_api_key = config['airtable_credentials'].get('api_key')
 airtable_base_id = config['airtable_credentials'].get('base_id')

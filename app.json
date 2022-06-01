@@ -11,7 +11,9 @@
   "repository": "https://github.com/bushjt987/gitlab-airtable-sync",
   "logo": null,
   "success_url": "/welcome",
-  "env": {},
+  "env": {
+    "CONFIG_JSON": null
+  },
   "formation": {
     "web": {
       "quantity": 1,
